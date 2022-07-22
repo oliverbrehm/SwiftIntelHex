@@ -7,7 +7,7 @@ let package = Package(
     name: "IntelHex",
     platforms: [
         .macOS(.v10_15),
-        .iOS(.v11),
+        .iOS(.v13),
         .watchOS(.v5),
         .tvOS(.v11)
     ],
