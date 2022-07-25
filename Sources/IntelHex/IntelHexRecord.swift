@@ -18,7 +18,7 @@ import Foundation
 /// a single record in the hex file
 public struct IntelHexRecord {
     // MARK: - Inner types
-    enum RecordType: UInt8 {
+    public enum RecordType: UInt8 {
         case data
         case endOfFile
         case extendedSegmentAddress
@@ -34,19 +34,19 @@ public struct IntelHexRecord {
     private static let checksumLength = 2
     private static let minLength = byteCountLength + addressLength + typeLength + checksumLength
     
-    // MARK: - Properties
+    // MARK: - Public properties
     
     /// the byte count of the record's data
-    let byteCount: UInt8
+    public let byteCount: UInt8
     
     /// the record's 16 bit address offset
-    let loadAddress: UInt16
+    public let loadAddress: UInt16
     
     /// the record's type
-    let type: RecordType
+    public let type: RecordType
     
     /// the record's data withe a length defined in byteCount
-    let data: Data // big endian
+    public let data: Data // big endian
     
     // MARK: - Functions
     static func parseString(_ string: String) throws -> IntelHexRecord {
