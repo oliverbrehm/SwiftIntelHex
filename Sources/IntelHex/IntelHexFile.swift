@@ -30,6 +30,25 @@ public struct IntelHexFile {
         case invalidType
         case invalidData
         case invalidEndOfFile
+        
+        public var errorDescription: String? {
+            switch self {
+            case .invalidLength:
+                return "The record's length is invalid."
+            case .invalidChecksum:
+                return "The record's checksum is invalid."
+            case .invalidByteCount:
+                return "The record's byte count is invalid."
+            case .invalidAddress:
+                return "The record's address field is invalid."
+            case .invalidType:
+                return "The record's type field is invalid."
+            case .invalidData:
+                return "The record's data field is invalid."
+            case .invalidEndOfFile:
+                return "The file does not contain an EOF record or contains multiple EOF records."
+            }
+        }
     }
     
     /// describes an isolated date block in the hex file
@@ -96,21 +115,15 @@ public struct IntelHexFile {
                 }
                 
                 var hexFile = IntelHexFile(records: records)
-                
-                do {
-                    hexFile.blocks = try hexFile.extractBinaryBlocks()
-                } catch {
-                    continuation.resume(throwing: error)
-                    return
-                }
-                
+                hexFile.blocks = hexFile.extractBinaryBlocks()
+
                 continuation.resume(returning: hexFile)
             }
         }
     }
     
     /// Returns a list of all coherent data blocks in the hex file with their start addresses
-    private func extractBinaryBlocks() throws -> [HexBinaryBlock] {
+    private func extractBinaryBlocks() -> [HexBinaryBlock] {
         var blocks: [HexBinaryBlock] = []
         
         var currentStartAddress: UInt16 = 0
@@ -180,6 +193,6 @@ public struct IntelHexFile {
             }
         }
         
-        throw ParseError.invalidEndOfFile
+        return blocks
     }
 }

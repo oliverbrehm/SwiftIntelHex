@@ -57,6 +57,11 @@ extension Data {
         self = data
     }
     
+    // MARK: - Properties
+    var hexString: String {
+        return reduce("", { String(format: "\($0)%02X", $1) })
+    }
+    
     // MARK: - Functions
     
     /// Returns a data type with specified length by adding padding bytes
