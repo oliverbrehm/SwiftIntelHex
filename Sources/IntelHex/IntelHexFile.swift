@@ -127,14 +127,14 @@ public struct IntelHexFile {
         var blocks: [HexBinaryBlock] = []
         
         var currentStartAddress: UInt16 = 0
-        var currentData: Data?
+        var currentData = Data()
         
         var segmentAddressExtension: UInt16 = 0
         var linearAddressExtension: UInt16 = 0
         var nextAddress = 0
         
         func finishBlock() {
-            if let currentData = currentData, !currentData.isEmpty {
+            if !currentData.isEmpty {
                 var address: UInt32 = 0
                 
                 if segmentAddressExtension > 0 {
@@ -165,7 +165,7 @@ public struct IntelHexFile {
                     nextAddress = Int(record.loadAddress)
                 }
                 
-                currentData?.append(record.data)
+                currentData.append(record.data)
 
                 nextAddress += Int(record.byteCount)
                 

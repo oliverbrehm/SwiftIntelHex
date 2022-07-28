@@ -6,25 +6,61 @@ final class IntelHexTests: XCTestCase {
     // MARK: - Static
     static let hexCharacterSet = CharacterSet(charactersIn: "0123456789ABCDEF")
     
-    static var testString =
-"""
-:020000021000EC
-:10010000214601360121470136007EFE09D2190140
-:100110002146017EB7C20001FF5F16002148011988
-:10012000194E79234623965778239EDA3F01B2CAA7
-:100130003F0156702B5E712B722B732146013421C7
-:00000001FF
-"""
-    
     // MARK: - Test functions
     func testExampleString() async throws {
-        let hexFile = try await IntelHexFile.parseString(Self.testString)
+        let testString =
+            """
+            :020000021000EC
+            :10010000214601360121470136007EFE09D2190140
+            :100110002146017EB7C20001FF5F16002148011988
+            :10012000194E79234623965778239EDA3F01B2CAA7
+            :100130003F0156702B5E712B722B732146013421C7
+            :00000001FF
+            """
+        
+        let hexFile = try await IntelHexFile.parseString(testString)
 
         XCTAssertEqual(hexFile.records.count, 6, "Invalid number of records in parsed string.")
         XCTAssertEqual(hexFile.consolidatedData?.count, 64, "Invalid size of consolidated data block.")
+        XCTAssertEqual(hexFile.blocks?.count, 1, "Invalid number of data blocks.")
         
         let address = UInt32(16 * 0x1000 + 0x0100)
         XCTAssertEqual(hexFile.startAddress, address, "Invalid start address.")
+    }
+    
+    func testMultipleBlocks() async throws {
+        let testString = makeTestString(strings: [
+            // block 1
+            makeRecordString(address: "0000", type: "00", data: "0123456789ABCDEF"),
+            makeRecordString(address: "0008", type: "00", data: "0123456789ABCDEF"),
+            
+            // block 2
+            makeRecordString(address: "1000", type: "00", data: "0123456789ABCDEF"),
+            makeRecordString(address: "1008", type: "00", data: "0123456789ABCDEF"),
+            makeRecordString(address: "1010", type: "00", data: "0123456789ABCDEF"),
+            makeRecordString(address: "1018", type: "00", data: "0123456789ABCDEF"),
+            
+            // block 3
+            makeRecordString(address: "2000", type: "00", data: "0123456789ABCDEF"),
+            makeRecordString(address: "2008", type: "00", data: "0123456789ABCDEF"),
+            makeRecordString(address: "2010", type: "00", data: "0123456789ABCDEF"),
+            makeRecordString(address: "2018", type: "00", data: "0123456789ABCDEF"),
+            makeRecordString(address: "2020", type: "00", data: "0123456789ABCDEF"),
+            makeRecordString(address: "2028", type: "00", data: "0123456789ABCDEF"),
+        ])
+        
+        let hexFile = try await IntelHexFile.parseString(testString)
+
+        XCTAssertEqual(hexFile.blocks?.count, 3, "Invalid number of data blocks.")
+
+        XCTAssertEqual(hexFile.blocks?[0].startAddress, 0x0000, "Invalid block start address.")
+        XCTAssertEqual(hexFile.blocks?[0].data.count, 16, "Invalid block size.")
+        
+        XCTAssertEqual(hexFile.blocks?[1].startAddress, 0x1000, "Invalid block start address.")
+        XCTAssertEqual(hexFile.blocks?[1].data.count, 32, "Invalid block size.")
+        
+        XCTAssertEqual(hexFile.blocks?[2].startAddress, 0x2000, "Invalid block start address.")
+        XCTAssertEqual(hexFile.blocks?[2].data.count, 48, "Invalid block size.")
     }
     
     func testExtendedSegmentAddress() async throws {
