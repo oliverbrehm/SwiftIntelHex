@@ -5,15 +5,15 @@ The extracted data can for example be used for programming the memory of a micro
 
 ## Features
 
-The library includes all basic features for hanling hex files, such as:
-- Parsing a hex string into a IntelHexFile object
+The library includes all basic features for handling hex files, such as:
+- Parsing a hex string into an IntelHexFile object
 - Extracting byte data and the data's start address
-- Splitting of non-adjacent data blocks, including start address an byte data for each block
-- Support for 16 bit segment addresses and 32 bit address spaces
+- Splitting of non-adjacent data blocks, including start address and byte data for each block
+- Support for 16-bit segment addresses and 32-bit address spaces
 
 ## Usage
 
-The `IntelHexFile.pars` function parses the whole file. The file must be provided as a string and the function must be called in an async context. Parse errors can be thrown as `IntelHexFile.ParseError`.
+The `IntelHexFile.parseString` function parses the whole file. The file must be provided as a string and the function must be called in an async context. Parse errors can be thrown as `IntelHexFile.ParseError`.
 
 ```swift
 let testString =
@@ -39,18 +39,28 @@ Task {
 The `IntelHexFile` object contains all the information about the records and extracted blocks in the hex file.
 
 ```swift
-hexFile.startAddress                // the first start address in the file
-hexFile.consolidatedData            // contains the concatinated data of all data records in the file (assuming they are all adjacent, starting at the same address)
+/* the first start address in the file */
+hexFile.startAddress
 
-hexFile.blocks?.first?.startAddress // the start address of the first data block
-hexFile.blocks?.first?.data         // the data of the first data block
+/* contains the concatinated data of all data records
+ * in the file (assuming they are all adjacent, starting at the same address)
+ */
+hexFile.consolidatedData
+
+/* the start address of the first data block */
+hexFile.blocks?.first?.startAddress
+
+/* the data of the first data block */
+hexFile.blocks?.first?.data
 
 /* the second data block
- * (data records are split into blocks whereever the start adddress of the next data record is not adjacent to the data of the previous record)
+ * (data records are split into blocks wherever the start address
+ * of the next data record is not adjacent to the data of the previous record)
  */
 hexFile.blocks?[1]
 
-hexFile.records                     // array of all records (lines) in the hex file
+/* array of all records (lines) in the hex file */
+hexFile.records
 ```
 
 ## Installation
